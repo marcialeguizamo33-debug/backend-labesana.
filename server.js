@@ -1,34 +1,18 @@
 import express from "express";
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import cors from "cors";
+import SibApiV3Sdk from "@sendinblue/client";
 
 dotenv.config();
 const app = express();
 
 // Middlewares
-app.use(cors());            // ✅ habilita comunicación con frontend
-app.use(express.json());    // ✅ parsea JSON
+app.use(cors());
+app.use(express.json());
 
-// Configuración del transporte SMTP con Brevo
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false, // STARTTLS
-  auth: {
-    user: "apikey", // literal, siempre "apikey"
-    pass: process.env.BREVO_API_KEY // tu API Key guardada en Railway
-  }
-});
-
-// Verificación inicial de conexión SMTP
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("❌ Error al conectar con Brevo SMTP:", error);
-  } else {
-    console.log("✅ Conexión SMTP exitosa con Brevo, listo para enviar correos");
-  }
-});
+// Configuración del cliente Brevo API
+const brevo = new SibApiV3Sdk.TransactionalEmailsApi();
+brevo.setApiKey(SibApiV3Sdk.ApiClient.authentications["apiKey"], process.env.BREVO_API_KEY);
 
 // Endpoint para recibir datos del formulario
 app.post("/send", async (req, res) => {
@@ -40,12 +24,12 @@ app.post("/send", async (req, res) => {
   }
 
   try {
-    await transporter.sendMail({
-      from: `"Agro Cuyana - La Besana" <labesana@agrocuyana.com>`,
-      replyTo: email,
-      to: "labesana@agrocuyana.com",
+    await brevo.sendTransacEmail({
+      sender: { name: "Agro Cuyana - La Besana", email: "labesana@agrocuyana.com" },
+      to: [{ email: "labesana@agrocuyana.com" }],
+      replyTo: { email },
       subject: `Nuevo mensaje de ${name}`,
-      html: `
+      htmlContent: `
         <h2>Nuevo mensaje desde el formulario de contacto</h2>
         <p><strong>Nombre:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
@@ -55,10 +39,10 @@ app.post("/send", async (req, res) => {
       `
     });
 
-    console.log("✅ Correo enviado correctamente con Brevo");
+    console.log("✅ Correo enviado correctamente con Brevo API");
     res.status(200).json({ success: true, msg: "Mensaje enviado correctamente" });
   } catch (error) {
-    console.error("❌ Error al enviar el mensaje con Brevo:", error);
+    console.error("❌ Error al enviar con Brevo API:", error);
     res.status(500).json({ success: false, msg: "Error al enviar el mensaje" });
   }
 });
@@ -66,16 +50,16 @@ app.post("/send", async (req, res) => {
 // Endpoint de prueba
 app.get("/test", async (req, res) => {
   try {
-    await transporter.sendMail({
-      from: `"Agro Cuyana - La Besana" <labesana@agrocuyana.com>`,
-      to: "labesana@agrocuyana.com",
-      subject: "Prueba de conexión SMTP con Brevo",
-      text: "Este es un correo de prueba enviado desde el backend con Nodemailer y Brevo."
+    await brevo.sendTransacEmail({
+      sender: { name: "Agro Cuyana - La Besana", email: "labesana@agrocuyana.com" },
+      to: [{ email: "labesana@agrocuyana.com" }],
+      subject: "Prueba de conexión con Brevo API",
+      textContent: "Este es un correo de prueba enviado desde el backend con Brevo API."
     });
 
-    res.status(200).json({ success: true, msg: "Correo de prueba enviado correctamente" });
+    res.status(200).json({ success: true, msg: "Correo de prueba enviado correctamente con Brevo API" });
   } catch (error) {
-    console.error("❌ Error en prueba SMTP con Brevo:", error);
+    console.error("❌ Error en prueba Brevo API:", error);
     res.status(500).json({ success: false, msg: "Error al enviar el correo de prueba" });
   }
 });
