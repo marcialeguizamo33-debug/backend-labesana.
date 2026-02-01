@@ -10,30 +10,30 @@ const app = express();
 app.use(cors());            // ✅ habilita comunicación con frontend
 app.use(express.json());    // ✅ parsea JSON
 
-// Configuración del transporte SMTP con Hostinger (puerto 587, STARTTLS)
+// Configuración del transporte SMTP con Brevo
 const transporter = nodemailer.createTransport({
-  host: "smtp.hostinger.com",   // servidor SMTP de Hostinger
-  port: 587,                    // puerto alternativo permitido
-  secure: false,                // STARTTLS (no SSL directo)
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false, // STARTTLS
   auth: {
-    user: process.env.SMTP_USER, // tu correo de empresa
-    pass: process.env.SMTP_PASS  // contraseña SMTP
+    user: "apikey", // literal, siempre "apikey"
+    pass: process.env.BREVO_API_KEY // tu API Key guardada en Railway
   }
 });
 
 // Verificación inicial de conexión SMTP
 transporter.verify((error, success) => {
   if (error) {
-    console.error("❌ Error al conectar con SMTP:", error);
+    console.error("❌ Error al conectar con Brevo SMTP:", error);
   } else {
-    console.log("✅ Conexión SMTP exitosa, listo para enviar correos");
+    console.log("✅ Conexión SMTP exitosa con Brevo, listo para enviar correos");
   }
 });
 
 // Endpoint para recibir datos del formulario
 app.post("/send", async (req, res) => {
   const { name, email, phone, message } = req.body;
-  console.log("📩 Datos recibidos del formulario:", req.body); // ✅ log para debug
+  console.log("📩 Datos recibidos del formulario:", req.body);
 
   if (!name || !email || !message) {
     return res.status(400).json({ success: false, msg: "Faltan campos obligatorios" });
@@ -41,9 +41,9 @@ app.post("/send", async (req, res) => {
 
   try {
     await transporter.sendMail({
-      from: `"Agro Cuyana - La Besana" <${process.env.SMTP_USER}>`,
-      replyTo: email, // ✅ permite responder al remitente
-      to: "labesana@agrocuyana.com", // tu correo de empresa
+      from: `"Agro Cuyana - La Besana" <labesana@agrocuyana.com>`,
+      replyTo: email,
+      to: "labesana@agrocuyana.com",
       subject: `Nuevo mensaje de ${name}`,
       html: `
         <h2>Nuevo mensaje desde el formulario de contacto</h2>
@@ -55,10 +55,10 @@ app.post("/send", async (req, res) => {
       `
     });
 
-    console.log("✅ Correo enviado correctamente");
+    console.log("✅ Correo enviado correctamente con Brevo");
     res.status(200).json({ success: true, msg: "Mensaje enviado correctamente" });
   } catch (error) {
-    console.error("❌ Error al enviar el mensaje:", error);
+    console.error("❌ Error al enviar el mensaje con Brevo:", error);
     res.status(500).json({ success: false, msg: "Error al enviar el mensaje" });
   }
 });
@@ -67,15 +67,15 @@ app.post("/send", async (req, res) => {
 app.get("/test", async (req, res) => {
   try {
     await transporter.sendMail({
-      from: `"Agro Cuyana - La Besana" <${process.env.SMTP_USER}>`,
+      from: `"Agro Cuyana - La Besana" <labesana@agrocuyana.com>`,
       to: "labesana@agrocuyana.com",
-      subject: "Prueba de conexión SMTP",
-      text: "Este es un correo de prueba enviado desde el backend con Nodemailer."
+      subject: "Prueba de conexión SMTP con Brevo",
+      text: "Este es un correo de prueba enviado desde el backend con Nodemailer y Brevo."
     });
 
     res.status(200).json({ success: true, msg: "Correo de prueba enviado correctamente" });
   } catch (error) {
-    console.error("❌ Error en prueba SMTP:", error);
+    console.error("❌ Error en prueba SMTP con Brevo:", error);
     res.status(500).json({ success: false, msg: "Error al enviar el correo de prueba" });
   }
 });
