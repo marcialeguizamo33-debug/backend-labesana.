@@ -9,9 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configuración del cliente Brevo API
+// ✅ Configuración correcta del cliente Brevo API
+const brevoClient = SibApiV3Sdk.ApiClient.instance;
+const apiKey = brevoClient.authentications["api-key"];
+apiKey.apiKey = process.env.BREVO_API_KEY;
+
 const brevo = new SibApiV3Sdk.TransactionalEmailsApi();
-brevo.apiKey = process.env.BREVO_API_KEY;   // 👈 asignación directa
 
 // Endpoint para recibir datos del formulario
 app.post("/send", async (req, res) => {
@@ -24,8 +27,8 @@ app.post("/send", async (req, res) => {
 
   try {
     await brevo.sendTransacEmail({
-      sender: { name: "Agro Cuyana - La Besana", email: "labesana@agrocuyana.com" }, // 👈 remitente verificado
-      to: [{ email: "labesana@agrocuyana.com" }], // 👈 destinatario (puede ser el mismo)
+      sender: { name: "Agro Cuyana - La Besana", email: "labesana@agrocuyana.com" },
+      to: [{ email: "labesana@agrocuyana.com" }],
       replyTo: { email },
       subject: `Nuevo mensaje de ${name}`,
       htmlContent: `
@@ -50,7 +53,7 @@ app.post("/send", async (req, res) => {
 app.get("/test", async (req, res) => {
   try {
     await brevo.sendTransacEmail({
-      sender: { name: "Agro Cuyana - La Besana", email: "labesana@agrocuyana.com" }, // 👈 remitente verificado
+      sender: { name: "Agro Cuyana - La Besana", email: "labesana@agrocuyana.com" },
       to: [{ email: "labesana@agrocuyana.com" }],
       subject: "Prueba de conexión con Brevo API",
       textContent: "Este es un correo de prueba enviado desde el backend con Brevo API."
@@ -68,5 +71,3 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
 });
-
-
