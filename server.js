@@ -10,8 +10,10 @@ app.use(cors());
 app.use(express.json());
 
 // Configuración del cliente Brevo API (versión 3.x)
-const brevo = new SibApiV3Sdk.TransactionalEmailsApi();
-brevo.setApiKey(process.env.BREVO_API_KEY);
+const brevoClient = new SibApiV3Sdk.ApiClient();
+brevoClient.authentications["apiKey"].apiKey = process.env.BREVO_API_KEY;
+
+const brevo = new SibApiV3Sdk.TransactionalEmailsApi(brevoClient);
 
 // Endpoint para recibir datos del formulario
 app.post("/send", async (req, res) => {
