@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import SibApiV3Sdk from "@sendinblue/client";
+import SibApiV3Sdk from "sib-api-v3-sdk";
 
 dotenv.config();
 const app = express();
@@ -9,11 +9,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configuración del cliente Brevo API (versión 3.x)
-const brevoClient = new SibApiV3Sdk.ApiClient();
+// Configuración del cliente Brevo API
+const brevoClient = SibApiV3Sdk.ApiClient.instance;
 brevoClient.authentications["apiKey"].apiKey = process.env.BREVO_API_KEY;
 
-const brevo = new SibApiV3Sdk.TransactionalEmailsApi(brevoClient);
+const brevo = new SibApiV3Sdk.TransactionalEmailsApi();
 
 // Endpoint para recibir datos del formulario
 app.post("/send", async (req, res) => {
@@ -39,7 +39,8 @@ app.post("/send", async (req, res) => {
       `
     });
 
-    res.status(200).json({ success: true, msg: "Mensaje enviado correctamente con Brevo API" });
+    console.log("✅ Correo enviado correctamente con Brevo API");
+    res.status(200).json({ success: true, msg: "Mensaje enviado correctamente" });
   } catch (error) {
     console.error("❌ Error al enviar con Brevo API:", error);
     res.status(500).json({ success: false, msg: "Error al enviar el mensaje" });
