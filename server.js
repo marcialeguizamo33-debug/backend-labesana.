@@ -24,8 +24,8 @@ app.post("/send", async (req, res) => {
 
   try {
     await brevo.sendTransacEmail({
-      sender: { name: "Agro Cuyana - La Besana", email: "labesana@agrocuyana.com" },
-      to: [{ email: "labesana@agrocuyana.com" }],
+      sender: { name: "Agro Cuyana - La Besana", email: "tu-gmail-verificado@gmail.com" }, // 👈 remitente verificado
+      to: [{ email: "labesana@agrocuyana.com" }], // 👈 destinatario empresa
       replyTo: { email },
       subject: `Nuevo mensaje de ${name}`,
       htmlContent: `
@@ -50,7 +50,7 @@ app.post("/send", async (req, res) => {
 app.get("/test", async (req, res) => {
   try {
     await brevo.sendTransacEmail({
-      sender: { name: "Agro Cuyana - La Besana", email: "labesana@agrocuyana.com" },
+      sender: { name: "Agro Cuyana - La Besana", email: "tu-gmail-verificado@gmail.com" }, // 👈 remitente verificado
       to: [{ email: "labesana@agrocuyana.com" }],
       subject: "Prueba de conexión con Brevo API",
       textContent: "Este es un correo de prueba enviado desde el backend con Brevo API."
