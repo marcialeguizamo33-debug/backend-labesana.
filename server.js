@@ -24,7 +24,7 @@ app.post("/send", async (req, res) => {
 
   try {
     await brevo.sendTransacEmail({
-      sender: { name: "Agro Cuyana - La Besana", email: "tu-gmail-verificado@gmail.com" }, // 👈 remitente verificado
+      sender: { name: "Agro Cuyana - La Besana", email: "labesana@agrocuyana.com" }, // 👈 remitente verificado
       to: [{ email: "labesana@agrocuyana.com" }], // 👈 destinatario empresa
       replyTo: { email },
       subject: `Nuevo mensaje de ${name}`,
@@ -68,3 +68,4 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
 });
+
