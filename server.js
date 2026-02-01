@@ -6,18 +6,18 @@ import SibApiV3Sdk from "@sendinblue/client";
 dotenv.config();
 const app = express();
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
 // Configuración del cliente Brevo API
+const brevoClient = SibApiV3Sdk.ApiClient.instance;
+brevoClient.authentications["apiKey"].apiKey = process.env.BREVO_API_KEY;
+
 const brevo = new SibApiV3Sdk.TransactionalEmailsApi();
-brevo.setApiKey(SibApiV3Sdk.ApiClient.authentications["apiKey"], process.env.BREVO_API_KEY);
 
 // Endpoint para recibir datos del formulario
 app.post("/send", async (req, res) => {
   const { name, email, phone, message } = req.body;
-  console.log("📩 Datos recibidos del formulario:", req.body);
 
   if (!name || !email || !message) {
     return res.status(400).json({ success: false, msg: "Faltan campos obligatorios" });
@@ -39,8 +39,7 @@ app.post("/send", async (req, res) => {
       `
     });
 
-    console.log("✅ Correo enviado correctamente con Brevo API");
-    res.status(200).json({ success: true, msg: "Mensaje enviado correctamente" });
+    res.status(200).json({ success: true, msg: "Mensaje enviado correctamente con Brevo API" });
   } catch (error) {
     console.error("❌ Error al enviar con Brevo API:", error);
     res.status(500).json({ success: false, msg: "Error al enviar el mensaje" });
@@ -64,7 +63,6 @@ app.get("/test", async (req, res) => {
   }
 });
 
-// ✅ Puerto dinámico para Railway
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
