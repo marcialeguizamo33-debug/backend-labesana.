@@ -10,11 +10,11 @@ const app = express();
 app.use(cors());            // ✅ habilita comunicación con frontend
 app.use(express.json());    // ✅ parsea JSON
 
-// Configuración del transporte SMTP con Hostinger
+// Configuración del transporte SMTP con Hostinger (puerto 587, STARTTLS)
 const transporter = nodemailer.createTransport({
   host: "smtp.hostinger.com",   // servidor SMTP de Hostinger
-  port: 465,                    // puerto seguro
-  secure: true,
+  port: 587,                    // puerto alternativo permitido
+  secure: false,                // STARTTLS (no SSL directo)
   auth: {
     user: process.env.SMTP_USER, // tu correo de empresa
     pass: process.env.SMTP_PASS  // contraseña SMTP
